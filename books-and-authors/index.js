@@ -50,7 +50,7 @@ let books = [
     title: 'Refactoring, edition 2',
     published: 2018,
     author: 'Martin Fowler',
-    id: "afa5de00-344d-11e9-a414-719c6709cf3e",
+    id: "afa5de00-344d-11e9-a414-719c6709cf3e", 
     genres: ['refactoring']
   },
   {
@@ -87,7 +87,7 @@ const typeDefs = gql`
   type Query {
     bookCount: Int!
     authorCount: Int!
-    allBooks: [Book!]!
+    allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
   }
 
@@ -111,7 +111,19 @@ const resolvers = {
   Query: {
     bookCount: () => books.length,
     authorCount: () => books.length,
-    allBooks: () => books,
+    allBooks: (root, args) => {
+      filteredBooks = books
+      if (args) {
+        if (args.author) {
+          filteredBooks = books.filter(book => book.author === args.author)
+        }
+        
+        if (args.genre) {
+          filteredBooks = filteredBooks.filter(book => book.genres.includes(args.genre))
+        }
+      }
+      return filteredBooks
+    },
     allAuthors: () => authors
   },
   Author: {
