@@ -122,6 +122,18 @@ const typeDefs = gql`
   }
 `
 
+const addAuthor = (root, { name, born }) => {
+    if (authors.find(author => author.name === name)) {
+      throw new UserInputError('Name must be unique', {
+        invalidArgs: name,
+      })
+    }
+
+    newAuthor = { name, born, id: uuid()}
+    authors = authors.concat(newAuthor)
+    return newAuthor
+}
+
 const resolvers = {
   Query: {
     bookCount: () => books.length,
@@ -145,22 +157,13 @@ const resolvers = {
     bookCount: (root) => books.filter(book => book.author === root.name).length
   },
   Mutation: {
-    addAuthor: (root, { name, born }) => {
-      if (authors.find(author => author.name === name)) {
-        throw new UserInputError('Name must be unique', {
-          invalidArgs: name,
-        })
-      }
-
-      newAuthor = { name, born, id: uuid()}
-      authors = authors.concat(newAuthor)
-      return newAuthor
-    },
-    // addBook: (root, args) => {
-    //   if (!authors.find(author => author.name === args.name)) addAuthor(name = args.author)
-
-    //   newBook = {args}
-    // }
+    addAuthor,
+    addBook: (root, args) => {
+      if (!authors.find(author => author.name === args.name)) addAuthor(null, { name: args.author })
+      newBook = { ...args, id: uuid() }
+      books = books.concat(newBook)
+      return newBook
+    }
   }
 }
 
