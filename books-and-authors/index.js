@@ -1,5 +1,7 @@
 const { ApolloServer, gql, UserInputError } = require('apollo-server')
 
+const { v1: uuid } = require('uuid');
+
 let authors = [
   {
     name: 'Robert Martin',
@@ -143,17 +145,22 @@ const resolvers = {
     bookCount: (root) => books.filter(book => book.author === root.name).length
   },
   Mutation: {
-    addAuthor: (root, args) => {
-      if (authors.find(author => author.name === args.name)) {
+    addAuthor: (root, { name, born }) => {
+      if (authors.find(author => author.name === name)) {
         throw new UserInputError('Name must be unique', {
-          invalidArgs: args.name,
+          invalidArgs: name,
         })
       }
 
-      newAuthor = { name: args.name, born: args.born}
+      newAuthor = { name, born, id: uuid()}
       authors = authors.concat(newAuthor)
       return newAuthor
-    }
+    },
+    // addBook: (root, args) => {
+    //   if (!authors.find(author => author.name === args.name)) addAuthor(name = args.author)
+
+    //   newBook = {args}
+    // }
   }
 }
 
