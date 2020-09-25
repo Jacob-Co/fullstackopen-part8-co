@@ -1,4 +1,4 @@
-const { ApolloServer, gql } = require('apollo-server')
+const { ApolloServer, gql, UserInputError } = require('apollo-server')
 
 let authors = [
   {
@@ -141,6 +141,19 @@ const resolvers = {
   },
   Author: {
     bookCount: (root) => books.filter(book => book.author === root.name).length
+  },
+  Mutation: {
+    addAuthor: (root, args) => {
+      if (authors.find(author => author.name === args.name)) {
+        throw new UserInputError('Name must be unique', {
+          invalidArgs: args.name,
+        })
+      }
+
+      newAuthor = { name: args.name, born: args.born}
+      authors = authors.concat(newAuthor)
+      return newAuthor
+    }
   }
 }
 
